@@ -7,21 +7,18 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.9.6/contr
 
 contract FARM is ERC20, Pausable, Ownable2Step {
 
-uint8 _decimals;
-
     constructor(
         uint256 initialsupply,
         address supplyaddress,
-        uint8 decimals_,
         string memory name,
         string memory symbol
+
     ) ERC20(name, symbol) {
-        _decimals = decimals_;
-        _mint(supplyaddress, initialsupply * 10**decimals_);
+        _mint(supplyaddress, initialsupply * 10**6);  // decimals is 6
     }
 
-    function decimals() public view virtual override returns (uint8) {
-        return _decimals;
+   function decimals() public view virtual override returns (uint8) {
+        return 6;
     }
     
     mapping(address => bool) public isBlocked;
@@ -44,7 +41,8 @@ uint8 _decimals;
         override
         returns (bool)
     {
-        require(isBlocked[msg.sender] == false, "This address is blacklisted!");
+        require(isBlocked[msg.sender] == false, "Your address is blacklisted!");
+        require(isBlocked[to] == false, "Recipient address is blacklisted!");
         require(to != address(0), "ERC20: transfer to the zero address");
         address owner = _msgSender();
         _transfer(owner, to, amount);
@@ -57,7 +55,7 @@ uint8 _decimals;
         uint256 amount
     ) public virtual override returns (bool) {
         require(isBlocked[from] == false, "From address is blacklisted!");
-        require(isBlocked[to] == false, "To address is blacklisted!");
+        require(isBlocked[to] == false, "Recipient address is blacklisted!");
         require(
             isBlocked[msg.sender] == false,
             "Your address is blacklisted!"
